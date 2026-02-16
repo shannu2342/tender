@@ -1,0 +1,41 @@
+{
+    "name": "tender-management-system",
+    "version": "1.0.0",
+    "description": "Enterprise-grade service & tender management website with admin dashboard",
+    "main": "server/server.js",
+    "scripts": {
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "server": "cd server && nodemon server.js",
+        "client": "cd client && npm start",
+        "build": "cd client && npm install && npm run build",
+        "heroku-postbuild": "cd client && npm install && npm run build"
+    },
+    "keywords": [
+        "tender",
+        "management",
+        "service",
+        "admin",
+        "dashboard",
+        "government"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "bcryptjs": "^2.4.3",
+        "cloudinary": "^2.2.0",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "csv-writer": "^1.6.0",
+        "dotenv": "^16.4.5",
+        "express": "^4.18.3",
+        "express-fileupload": "^1.4.3",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.2.1",
+        "multer": "^1.4.5-lts.1",
+        "nodemailer": "^8.0.1"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.2",
+        "nodemon": "^3.1.0"
+    }
+}
