@@ -306,7 +306,7 @@ const mockData = {
         businessHours: 'Mon to Fri, 9:00 AM to 6:00 PM IST',
         facebookUrl: 'https://facebook.com/gemservicesindia',
         instagramUrl: 'https://instagram.com/gemservicesindia',
-        linkedinUrl: 'https://linkedin.com/company/gemservicesindia',
+        youtubeUrl: 'https://youtube.com/@gemservicesindia',
         footerBlurb: 'Trusted procurement operations support for registration, bidding, compliance, and post-award execution.',
         footerSolutions: [
             'GeM Registration',
@@ -315,6 +315,38 @@ const mockData = {
             'Tender Tracking',
             'Compliance Support',
             'Enterprise SLA Desk'
+        ],
+        pricingPlans: [
+            {
+                name: 'Starter',
+                price: 'Rs. 999',
+                frequency: '/month',
+                featured: false,
+                description: 'For teams starting GeM and basic procurement operations.',
+                points: ['GeM registration assistance', 'Basic catalogue setup', 'Email support', 'Monthly compliance checklist'],
+                sampleDeliverables: ['Seller profile setup checklist', '2 sample catalogue line items', 'Compliance readiness tracker'],
+                sampleTimeline: '3-5 business days'
+            },
+            {
+                name: 'Growth',
+                price: 'Rs. 2,999',
+                frequency: '/month',
+                featured: true,
+                description: 'For active teams that need bid participation support.',
+                points: ['Everything in Starter', 'Bid participation support', 'Tender tracking desk', 'Priority support window'],
+                sampleDeliverables: ['Bid response template with compliance matrix', 'Tender shortlist sheet (weekly)', 'Review-ready submission checklist'],
+                sampleTimeline: '2-3 business days'
+            },
+            {
+                name: 'Enterprise',
+                price: 'Custom',
+                frequency: '',
+                featured: false,
+                description: 'For large teams requiring SLA-backed procurement operations.',
+                points: ['Dedicated account lead', 'SLA-backed support', 'Advanced reporting', 'Custom workflows and integrations'],
+                sampleDeliverables: ['SLA response model and ownership matrix', 'Executive KPI reporting template', 'Custom workflow blueprint for your org'],
+                sampleTimeline: '1-2 business days for proposal draft'
+            }
         ],
         homeHeroImageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=2000&q=80',
         homeHeroImageAlt: 'Enterprise team planning procurement operations',

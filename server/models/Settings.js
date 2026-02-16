@@ -14,9 +14,10 @@ const settingsSchema = new mongoose.Schema({
     businessHours: { type: String },
     facebookUrl: { type: String },
     instagramUrl: { type: String },
-    linkedinUrl: { type: String },
+    youtubeUrl: { type: String },
     footerBlurb: { type: String },
     footerSolutions: [{ type: String }],
+    pricingPlans: [{ type: mongoose.Schema.Types.Mixed }],
 
     // Contact Information
     contact: {

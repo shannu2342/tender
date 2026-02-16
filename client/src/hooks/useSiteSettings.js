@@ -51,6 +51,16 @@ const parseList = (value, fallback = []) => {
         .filter(Boolean);
     return rows.length ? rows : fallback;
 };
+const parseJsonArray = (value, fallback = []) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value !== 'string' || !value.trim()) return fallback;
+    try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : fallback;
+    } catch {
+        return fallback;
+    }
+};
 
 export const useSiteSettings = () => {
     const [settings, setSettings] = useState(null);
@@ -92,8 +102,8 @@ export const useSiteSettings = () => {
             social: {
                 ...site.social,
                 facebook: settings?.facebookUrl || site.social.facebook,
-                linkedin: settings?.linkedinUrl || site.social.linkedin,
-                instagram: settings?.instagramUrl || site.social.instagram
+                instagram: settings?.instagramUrl || site.social.instagram,
+                youtube: settings?.youtubeUrl || site.social.youtube
             },
             branding: {
                 ...site.branding,
@@ -119,6 +129,9 @@ export const useSiteSettings = () => {
                 freeVisibleTenders: Number.isFinite(freeVisibleTenders) ? freeVisibleTenders : 5,
                 premiumPreviewTenders: Number.isFinite(premiumPreviewTenders) ? premiumPreviewTenders : 2,
                 razorpayKeyId: settings?.razorpayKeyId || ''
+            },
+            pricing: {
+                plans: parseJsonArray(settings?.pricingPlans, site.pricing?.plans || [])
             }
         };
     }, [settings]);

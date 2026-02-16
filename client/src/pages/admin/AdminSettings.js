@@ -35,9 +35,10 @@ const defaultSettings = {
     businessHours: '',
     facebookUrl: '',
     instagramUrl: '',
-    linkedinUrl: '',
+    youtubeUrl: '',
     footerBlurb: '',
     footerSolutions: '',
+    pricingPlans: '',
     homeHeroImageUrl: '',
     homeHeroImageAlt: '',
     tenderAccessEnabled: true,
@@ -67,7 +68,10 @@ const AdminSettings = () => {
                     ...incoming,
                     footerSolutions: Array.isArray(incoming.footerSolutions)
                         ? incoming.footerSolutions.join('\n')
-                        : incoming.footerSolutions || prev.footerSolutions
+                        : incoming.footerSolutions || prev.footerSolutions,
+                    pricingPlans: Array.isArray(incoming.pricingPlans)
+                        ? JSON.stringify(incoming.pricingPlans, null, 2)
+                        : incoming.pricingPlans || prev.pricingPlans
                 }));
             } catch (error) {
                 console.error('Error fetching settings:', error);
@@ -82,12 +86,21 @@ const AdminSettings = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            let parsedPricingPlans = [];
+            if (String(settings.pricingPlans || '').trim()) {
+                parsedPricingPlans = JSON.parse(settings.pricingPlans);
+                if (!Array.isArray(parsedPricingPlans)) {
+                    throw new Error('Pricing plans must be a JSON array');
+                }
+            }
+
             const payload = {
                 ...settings,
                 footerSolutions: String(settings.footerSolutions || '')
                     .split('\n')
                     .map((item) => item.trim())
-                    .filter(Boolean)
+                    .filter(Boolean),
+                pricingPlans: parsedPricingPlans
             };
             const response = await api.put('/settings', payload);
             clearSiteSettingsCache();
@@ -96,7 +109,10 @@ const AdminSettings = () => {
                 ...(response.data || {}),
                 footerSolutions: Array.isArray(response.data?.footerSolutions)
                     ? response.data.footerSolutions.join('\n')
-                    : prev.footerSolutions
+                    : prev.footerSolutions,
+                pricingPlans: Array.isArray(response.data?.pricingPlans)
+                    ? JSON.stringify(response.data.pricingPlans, null, 2)
+                    : prev.pricingPlans
             }));
             setSuccessMessage('Settings updated successfully');
             setTimeout(() => setSuccessMessage(''), 3000);
@@ -206,8 +222,8 @@ const AdminSettings = () => {
                     <input type="text" name="instagramUrl" className="form-control" value={settings.instagramUrl} onChange={handleChange} />
                 </div>
                 <div style={fieldStyle}>
-                    <label style={labelStyle}>LinkedIn URL</label>
-                    <input type="text" name="linkedinUrl" className="form-control" value={settings.linkedinUrl} onChange={handleChange} />
+                    <label style={labelStyle}>YouTube URL</label>
+                    <input type="text" name="youtubeUrl" className="form-control" value={settings.youtubeUrl} onChange={handleChange} />
                 </div>
 
                 <h2 style={sectionTitle}>Footer Content</h2>
@@ -238,6 +254,19 @@ const AdminSettings = () => {
                         />
                     </div>
                 ) : null}
+
+                <h2 style={sectionTitle}>Pricing Plans</h2>
+                <div style={fieldStyle}>
+                    <label style={labelStyle}>Pricing Plans JSON Array</label>
+                    <textarea
+                        name="pricingPlans"
+                        className="form-control"
+                        rows="10"
+                        value={settings.pricingPlans}
+                        onChange={handleChange}
+                        placeholder='[{"name":"Starter","price":"Rs. 999","frequency":"/month","featured":false,"description":"...","points":["..."],"sampleDeliverables":["..."],"sampleTimeline":"3-5 business days"}]'
+                    />
+                </div>
 
                 <h2 style={sectionTitle}>Premium Tender Access</h2>
                 <div style={fieldStyle}>

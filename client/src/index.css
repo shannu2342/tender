@@ -2348,6 +2348,10 @@ a:hover {
     color: var(--color-muted);
 }
 
+.site-header__contact-link {
+    font-weight: 700;
+}
+
 .site-header .brand__text strong {
     color: var(--color-ink);
 }
@@ -2465,22 +2469,51 @@ a[href*="wa.me"].btn:hover,
     color: #f8fafc;
 }
 
+.brand--footer .brand__text small {
+    color: #e2e8f0;
+    opacity: 1;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    line-height: 1.3;
+}
+
+.social-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+}
+
+.social-btn--facebook {
+    background: #1877f2 !important;
+    border-color: #1877f2 !important;
+    color: #fff !important;
+}
+
+.social-btn--instagram {
+    background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4) !important;
+    border-color: #8134af !important;
+    color: #fff !important;
+}
+
+.social-btn--youtube {
+    background: #ff0000 !important;
+    border-color: #ff0000 !important;
+    color: #fff !important;
+}
+
 .home-hero-panel {
-    min-height: clamp(460px, 62vh, 640px);
+    min-height: auto;
     display: grid;
     align-items: center;
-    background-position: center;
-    background-size: 108%;
-    background-repeat: no-repeat;
-    animation: heroBgZoom 20s ease-in-out infinite alternate;
+    background-image: none !important;
+    animation: none;
 }
 
 .home-hero-panel::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(120deg, rgba(15, 23, 42, 0.68), rgba(15, 23, 42, 0.38));
-    pointer-events: none;
+    display: none;
 }
 
 .home-hero-layout {
@@ -2492,18 +2525,18 @@ a[href*="wa.me"].btn:hover,
 }
 
 .home-hero-panel .kicker {
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.32);
-    background: rgba(15, 23, 42, 0.34);
+    color: #0f172a;
+    border-color: rgba(32, 101, 114, 0.25);
+    background: rgba(32, 101, 114, 0.1);
 }
 
 .home-hero-panel .page__title,
 .home-hero-panel .home-hero__lead--light {
-    color: #ffffff !important;
+    color: #0f172a !important;
 }
 
 .home-hero-panel .stat-box {
-    background: rgba(255, 255, 255, 0.9);
+    background: #ffffff;
 }
 
 .media-cover {
@@ -2546,6 +2579,19 @@ a[href*="wa.me"].btn:hover,
     100% {
         background-size: 118%;
     }
+}
+
+body {
+    background: #f6f8fc;
+}
+
+.hero-panel {
+    background: #ffffff;
+    animation: none;
+}
+
+.hero-panel::before {
+    display: none;
 }
 
 @media (min-width: 720px) {

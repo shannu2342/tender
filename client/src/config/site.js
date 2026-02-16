@@ -18,8 +18,8 @@ export const site = {
     },
     social: {
         facebook: 'https://facebook.com/gemservicesindia',
-        linkedin: 'https://linkedin.com/company/gemservicesindia',
-        instagram: 'https://instagram.com/gemservicesindia'
+        instagram: 'https://instagram.com/gemservicesindia',
+        youtube: 'https://youtube.com/@gemservicesindia'
     },
     branding: {
         logoUrl: '',
@@ -39,5 +39,8 @@ export const site = {
             'Compliance Support',
             'Enterprise SLA Desk'
         ]
+    },
+    pricing: {
+        plans: []
     }
 };

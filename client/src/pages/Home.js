@@ -16,10 +16,6 @@ const Home = () => {
     const [services, setServices] = useState([]);
     const [tenders, setTenders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const heroPrimaryImage =
-        managed.heroPrimaryImage ||
-        site.home.heroImageUrl ||
-        'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=2000&q=80';
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -63,9 +59,8 @@ const Home = () => {
         <div className="page page--tight-top">
             <div className="container">
                 <section
-                    className="hero-panel hero-panel--image home-hero-panel"
+                    className="hero-panel home-hero-panel"
                     aria-label={site.home.heroImageAlt || 'Home hero section'}
-                    style={{ backgroundImage: `url(${heroPrimaryImage})` }}
                 >
                     <div className="home-hero-layout">
                         <div className="home-hero-copy">

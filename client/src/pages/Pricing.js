@@ -3,14 +3,19 @@ import { useMemo, useState } from 'react';
 import { Crown } from 'lucide-react';
 import { pricingPlans } from '../data/siteContent';
 import { useManagedPage } from '../hooks/useManagedPage';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import { pageTemplates } from '../config/pageTemplates';
 import PlanPurchaseModal from '../components/PlanPurchaseModal';
 import PremiumAccessModal from '../components/PremiumAccessModal';
 
 const Pricing = () => {
     const location = useLocation();
+    const site = useSiteSettings();
     const content = useManagedPage('pricing', pageTemplates.pricing);
-    const plans = content.plans || pricingPlans;
+    const plans =
+        (Array.isArray(site.pricing?.plans) && site.pricing.plans.length ? site.pricing.plans : null) ||
+        content.plans ||
+        pricingPlans;
     const [activePlan, setActivePlan] = useState(null);
     const [premiumPaymentOpen, setPremiumPaymentOpen] = useState(false);
     const shouldShowUpgrade = useMemo(() => new URLSearchParams(location.search).get('upgrade') === 'premium', [location.search]);

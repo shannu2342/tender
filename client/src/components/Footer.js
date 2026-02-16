@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Phone, Mail, MapPin, MessageCircle, Facebook, Linkedin, Instagram } from 'lucide-react';
+import { Phone, Mail, MapPin, MessageCircle, Facebook, Instagram, Youtube } from 'lucide-react';
 import { useSiteSettings } from '../hooks/useSiteSettings';
+import { servicesService } from '../services/api';
 
 const quickLinks = [
     { name: 'About', path: '/about' },
@@ -23,11 +25,33 @@ const legalLinks = [
 
 const Footer = () => {
     const site = useSiteSettings();
+    const [serviceTitles, setServiceTitles] = useState([]);
     const socialLinks = [
-        { key: 'facebook', href: site.social.facebook, label: 'Facebook', icon: <Facebook size={16} /> },
-        { key: 'linkedin', href: site.social.linkedin, label: 'LinkedIn', icon: <Linkedin size={16} /> },
-        { key: 'instagram', href: site.social.instagram, label: 'Instagram', icon: <Instagram size={16} /> }
+        { key: 'facebook', href: site.social.facebook, label: 'Facebook', icon: <Facebook size={16} />, className: 'social-btn social-btn--facebook' },
+        { key: 'instagram', href: site.social.instagram, label: 'Instagram', icon: <Instagram size={16} />, className: 'social-btn social-btn--instagram' },
+        { key: 'youtube', href: site.social.youtube, label: 'YouTube', icon: <Youtube size={16} />, className: 'social-btn social-btn--youtube' }
     ].filter((item) => Boolean(item.href));
+
+    useEffect(() => {
+        const loadServices = async () => {
+            try {
+                const response = await servicesService.getServices();
+                if (Array.isArray(response.data) && response.data.length) {
+                    setServiceTitles(
+                        response.data
+                            .filter((item) => item?.enabled !== false)
+                            .map((item) => item.title)
+                            .filter(Boolean)
+                            .slice(0, 6)
+                    );
+                }
+            } catch {
+                setServiceTitles([]);
+            }
+        };
+
+        loadServices();
+    }, []);
 
     return (
         <footer className="site-footer">
@@ -50,7 +74,7 @@ const Footer = () => {
                     {socialLinks.length ? (
                         <div className="site-footer__socials">
                             {socialLinks.map((item) => (
-                                <a key={item.key} href={item.href} target="_blank" rel="noopener noreferrer" aria-label={item.label}>
+                                <a key={item.key} href={item.href} target="_blank" rel="noopener noreferrer" aria-label={item.label} className={item.className}>
                                     {item.icon}
                                 </a>
                             ))}
@@ -72,7 +96,7 @@ const Footer = () => {
                 <section>
                     <h3 className="site-footer__title">Core Solutions</h3>
                     <ul className="site-footer__list">
-                        {site.footer.solutions.map((item) => (
+                        {(serviceTitles.length ? serviceTitles : site.footer.solutions).map((item) => (
                             <li key={item}>{item}</li>
                         ))}
                     </ul>
