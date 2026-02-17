@@ -55,31 +55,65 @@ const Home = () => {
 
         if (!heroTitle && !heroLead) return;
 
+        let cancelled = false;
+        const timeouts = [];
         let titleIndex = 0;
         let leadIndex = 0;
-        let leadTimer;
 
-        const titleTimer = setInterval(() => {
+        const schedule = (fn, delay) => {
+            const id = setTimeout(() => {
+                if (!cancelled) fn();
+            }, delay);
+            timeouts.push(id);
+        };
+
+        const resetAndRestart = () => {
+            titleIndex = 0;
+            leadIndex = 0;
+            setTypedTitle("");
+            setTypedLead("");
+            schedule(typeTitle, 260);
+        };
+
+        const typeLead = () => {
+            if (!heroLead) {
+                schedule(resetAndRestart, 1200);
+                return;
+            }
+
+            leadIndex += 1;
+            setTypedLead(heroLead.slice(0, leadIndex));
+
+            if (leadIndex < heroLead.length) {
+                schedule(typeLead, 14);
+                return;
+            }
+
+            schedule(resetAndRestart, 1800);
+        };
+
+        const typeTitle = () => {
+            if (!heroTitle) {
+                schedule(typeLead, 120);
+                return;
+            }
+
             titleIndex += 1;
             setTypedTitle(heroTitle.slice(0, titleIndex));
 
-            if (titleIndex >= heroTitle.length) {
-                clearInterval(titleTimer);
-
-                leadTimer = setInterval(() => {
-                    leadIndex += 1;
-                    setTypedLead(heroLead.slice(0, leadIndex));
-
-                    if (leadIndex >= heroLead.length) {
-                        clearInterval(leadTimer);
-                    }
-                }, 14);
+            if (titleIndex < heroTitle.length) {
+                schedule(typeTitle, 60);
+                return;
             }
-        }, 60);
+
+            schedule(typeLead, 120);
+        };
+
+        schedule(typeTitle, 120);
 
         return () => {
-            clearInterval(titleTimer);
-            if (leadTimer) clearInterval(leadTimer);
+            cancelled = true;
+            timeouts.forEach((id) => clearTimeout(id));
         };
     }, [managed.title, managed.lead, site.name]);
 
