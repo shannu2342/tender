@@ -16,6 +16,8 @@ const Home = () => {
     const [services, setServices] = useState([]);
     const [tenders, setTenders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [typedTitle, setTypedTitle] = useState("");
+    const [typedLead, setTypedLead] = useState("");
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -43,6 +45,44 @@ const Home = () => {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const heroTitle = managed.title || site.name || "";
+        const heroLead = managed.lead || "";
+
+        setTypedTitle("");
+        setTypedLead("");
+
+        if (!heroTitle && !heroLead) return;
+
+        let titleIndex = 0;
+        let leadIndex = 0;
+        let leadTimer;
+
+        const titleTimer = setInterval(() => {
+            titleIndex += 1;
+            setTypedTitle(heroTitle.slice(0, titleIndex));
+
+            if (titleIndex >= heroTitle.length) {
+                clearInterval(titleTimer);
+
+                leadTimer = setInterval(() => {
+                    leadIndex += 1;
+                    setTypedLead(heroLead.slice(0, leadIndex));
+
+                    if (leadIndex >= heroLead.length) {
+                        clearInterval(leadTimer);
+                    }
+                }, 14);
+            }
+        }, 60);
+
+        return () => {
+            clearInterval(titleTimer);
+            if (leadTimer) clearInterval(leadTimer);
+        };
+    }, [managed.title, managed.lead, site.name]);
+
     if (loading) {
         return (
             <div className="loading">
@@ -64,8 +104,8 @@ const Home = () => {
                     <div className="home-hero-layout">
                         <div className="home-hero-copy">
                             <span className="kicker">{managed.kicker}</span>
-                            <h1 className="page__title mt-14">{managed.title || site.name}</h1>
-                            <p className="page__lead home-hero__lead--light">{managed.lead}</p>
+                            <h1 className="page__title mt-14 home-hero__typed-title">{typedTitle}</h1>
+                            <p className="page__lead home-hero__lead--light home-hero__typed-lead">{typedLead}</p>
                             <div className="cta-row">
                                 <Link to="/services" className="btn btn-primary">
                                     Explore Services <ArrowRight size={16} />
