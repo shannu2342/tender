@@ -18,9 +18,7 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [typedTitle, setTypedTitle] = useState("");
     const [typedLead, setTypedLead] = useState("");
-    const [heroTypeRun, setHeroTypeRun] = useState(0);
-    const [heroEraseRun, setHeroEraseRun] = useState(0);
-    const [isHeroVisible, setIsHeroVisible] = useState(false);
+    const [isHeroVisible, setIsHeroVisible] = useState(true);
     const heroSectionRef = useRef(null);
     const defaultHeroTitle = 'GeM Services India';
     const defaultHeroLead = 'Built for serious teams that need predictable support for GeM onboarding, catalogue execution, bid participation, and tender delivery timelines.';
@@ -53,30 +51,11 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        if (!loading && heroTypeRun === 0) {
-            setIsHeroVisible(true);
-            setHeroTypeRun(1);
-        }
-    }, [loading, heroTypeRun]);
-
-    useEffect(() => {
         const section = heroSectionRef.current;
         if (!section) return;
 
-        let wasVisible = false;
-
         const onVisibilityChange = (visible) => {
-            if (visible && !wasVisible) {
-                setIsHeroVisible(true);
-                setHeroTypeRun((v) => v + 1);
-            }
-
-            if (!visible && wasVisible) {
-                setIsHeroVisible(false);
-                setHeroEraseRun((v) => v + 1);
-            }
-
-            wasVisible = visible;
+            setIsHeroVisible(visible);
         };
 
         const checkInitialVisibility = () => {
@@ -84,15 +63,15 @@ const Home = () => {
             const vh = window.innerHeight || document.documentElement.clientHeight;
             const visibleHeight = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
             const ratio = rect.height > 0 ? visibleHeight / rect.height : 0;
-            onVisibilityChange(ratio >= 0.05);
+            onVisibilityChange(ratio >= 0.02);
         };
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                const visible = entry.isIntersecting && entry.intersectionRatio >= 0.05;
+                const visible = entry.isIntersecting && entry.intersectionRatio >= 0.02;
                 onVisibilityChange(visible);
             },
-            { threshold: [0, 0.05, 0.2, 0.5] }
+            { threshold: [0, 0.02, 0.1, 0.3] }
         );
 
         observer.observe(section);
@@ -105,91 +84,80 @@ const Home = () => {
         const heroTitle = (managed.title || site.name || defaultHeroTitle).trim();
         const heroLead = (managed.lead || defaultHeroLead).trim();
 
-        if (!isHeroVisible || heroTypeRun === 0) return;
-
-        setTypedTitle('');
-        setTypedLead('');
-
         let cancelled = false;
-        const timeouts = [];
-        let titleIndex = 0;
-        let leadIndex = 0;
+        const timers = [];
 
         const schedule = (fn, delay) => {
             const id = setTimeout(() => {
                 if (!cancelled) fn();
             }, delay);
-            timeouts.push(id);
+            timers.push(id);
         };
 
-        const typeLead = () => {
-            if (!heroLead || !isHeroVisible) return;
+        if (!isHeroVisible) {
+            const eraser = setInterval(() => {
+                let hasChars = false;
 
+                setTypedLead((prev) => {
+                    if (prev.length > 0) {
+                        hasChars = true;
+                        return prev.slice(0, -1);
+                    }
+                    return prev;
+                });
+
+                if (!hasChars) {
+                    setTypedTitle((prev) => {
+                        if (prev.length > 0) {
+                            hasChars = true;
+                            return prev.slice(0, -1);
+                        }
+                        return prev;
+                    });
+                }
+
+                if (!hasChars) {
+                    clearInterval(eraser);
+                }
+            }, 10);
+
+            return () => clearInterval(eraser);
+        }
+
+        setTypedTitle('');
+        setTypedLead('');
+
+        let titleIndex = 0;
+        let leadIndex = 0;
+
+        const typeLead = () => {
+            if (!heroLead) return;
             leadIndex += 1;
             setTypedLead(heroLead.slice(0, leadIndex));
-
-            if (leadIndex < heroLead.length) {
-                schedule(typeLead, 14);
-            }
+            if (leadIndex < heroLead.length) schedule(typeLead, 14);
         };
 
         const typeTitle = () => {
-            if (!heroTitle || !isHeroVisible) {
+            if (!heroTitle) {
                 schedule(typeLead, 120);
                 return;
             }
-
             titleIndex += 1;
             setTypedTitle(heroTitle.slice(0, titleIndex));
-
             if (titleIndex < heroTitle.length) {
                 schedule(typeTitle, 60);
                 return;
             }
-
             schedule(typeLead, 120);
         };
 
-        schedule(typeTitle, 90);
+        schedule(typeTitle, 80);
 
         return () => {
             cancelled = true;
-            timeouts.forEach((id) => clearTimeout(id));
+            timers.forEach((id) => clearTimeout(id));
         };
-    }, [heroTypeRun, isHeroVisible, managed.title, managed.lead, site.name, defaultHeroTitle, defaultHeroLead]);
-
-    useEffect(() => {
-        if (heroEraseRun === 0) return;
-
-        const eraser = setInterval(() => {
-            let done = false;
-
-            setTypedLead((prevLead) => {
-                if (prevLead.length > 0) {
-                    return prevLead.slice(0, -1);
-                }
-
-                done = true;
-                return prevLead;
-            });
-
-            if (done) {
-                setTypedTitle((prevTitle) => {
-                    if (prevTitle.length > 0) {
-                        done = false;
-                        return prevTitle.slice(0, -1);
-                    }
-                    return prevTitle;
-                });
-            }
-
-            if (done) {
-                clearInterval(eraser);
-            }
-        }, 10);
-
-        return () => clearInterval(eraser);
-    }, [heroEraseRun]);
+    }, [isHeroVisible, managed.title, managed.lead, site.name, defaultHeroTitle, defaultHeroLead]);
 
 
     if (loading) {
