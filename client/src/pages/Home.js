@@ -22,6 +22,11 @@ const Home = () => {
     const heroSectionRef = useRef(null);
     const defaultHeroTitle = 'GeM Services India';
     const defaultHeroLead = 'Built for serious teams that need predictable support for GeM onboarding, catalogue execution, bid participation, and tender delivery timelines.';
+    const normalizeHeroText = (value, fallback) => {
+        if (typeof value !== 'string') return fallback;
+        const text = value.trim();
+        return text.length ? text : fallback;
+    };
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -81,8 +86,8 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        const heroTitle = (managed.title || site.name || defaultHeroTitle).trim();
-        const heroLead = (managed.lead || defaultHeroLead).trim();
+        const heroTitle = normalizeHeroText(managed.title, normalizeHeroText(site.name, defaultHeroTitle));
+        const heroLead = normalizeHeroText(managed.lead, defaultHeroLead);
 
         let cancelled = false;
         const timers = [];
