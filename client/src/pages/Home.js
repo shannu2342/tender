@@ -16,9 +16,6 @@ const Home = () => {
     const [services, setServices] = useState([]);
     const [tenders, setTenders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [typedTitle, setTypedTitle] = useState("");
-    const [heroRevealed, setHeroRevealed] = useState(false);
-    const heroTitle = managed.title || site.name;
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -46,34 +43,6 @@ const Home = () => {
 
         fetchData();
     }, []);
-
-    useEffect(() => {
-        setTypedTitle("");
-        setHeroRevealed(false);
-
-        if (!heroTitle) {
-            setHeroRevealed(true);
-            return;
-        }
-
-        let titleIndex = 0;
-        let revealTimer;
-        const typingTimer = setInterval(() => {
-            titleIndex += 1;
-            setTypedTitle(heroTitle.slice(0, titleIndex));
-
-            if (titleIndex >= heroTitle.length) {
-                clearInterval(typingTimer);
-                revealTimer = setTimeout(() => setHeroRevealed(true), 120);
-            }
-        }, 48);
-
-        return () => {
-            clearInterval(typingTimer);
-            if (revealTimer) clearTimeout(revealTimer);
-        };
-    }, [heroTitle]);
-
     if (loading) {
         return (
             <div className="loading">
@@ -95,9 +64,9 @@ const Home = () => {
                     <div className="home-hero-layout">
                         <div className="home-hero-copy">
                             <span className="kicker">{managed.kicker}</span>
-                            <h1 className="page__title mt-14 home-hero__typed-title" aria-label={heroTitle}>{typedTitle}<span className={`home-hero__cursor ${heroRevealed ? 'is-hidden' : ''}`} aria-hidden="true">|</span></h1>
-                            <p className={`page__lead home-hero__lead--light home-hero__reveal ${heroRevealed ? 'is-visible' : ''}`}>{managed.lead}</p>
-                            <div className={`cta-row home-hero__reveal home-hero__reveal--delay-1 ${heroRevealed ? 'is-visible' : ''}`}>
+                            <h1 className="page__title mt-14">{managed.title || site.name}</h1>
+                            <p className="page__lead home-hero__lead--light">{managed.lead}</p>
+                            <div className="cta-row">
                                 <Link to="/services" className="btn btn-primary">
                                     Explore Services <ArrowRight size={16} />
                                 </Link>
@@ -108,7 +77,7 @@ const Home = () => {
                                     WhatsApp Desk <MessageCircle size={16} />
                                 </a>
                             </div>
-                            <div className={`stats-grid home-hero__reveal home-hero__reveal--delay-2 ${heroRevealed ? 'is-visible' : ''}`}>
+                            <div className="stats-grid">
                                 <div className="stat-box">
                                     <strong>10+ Years</strong>
                                     <span>Procurement and compliance operations</span>
