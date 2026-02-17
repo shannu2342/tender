@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle, Clock3, ShieldCheck, BriefcaseBusiness } from 'lucide-react';
 import { servicesService, tendersService } from '../services/api';
@@ -20,11 +20,14 @@ const Home = () => {
     const [typedLead, setTypedLead] = useState("");
     const defaultHeroTitle = 'GeM Services India';
     const defaultHeroLead = 'Built for serious teams that need predictable support for GeM onboarding, catalogue execution, bid participation, and tender delivery timelines.';
+    const hasTypedStartedRef = useRef(false);
     const normalizeHeroText = (value, fallback) => {
         if (typeof value !== 'string') return fallback;
         const text = value.trim();
         return text.length ? text : fallback;
     };
+    const heroTitleText = normalizeHeroText(managed.title, normalizeHeroText(site.name, defaultHeroTitle));
+    const heroLeadText = normalizeHeroText(managed.lead, defaultHeroLead);
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -54,11 +57,9 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        if (loading) return;
+        if (loading || hasTypedStartedRef.current) return;
 
-        const heroTitle = normalizeHeroText(managed.title, normalizeHeroText(site.name, defaultHeroTitle));
-        const heroLead = normalizeHeroText(managed.lead, defaultHeroLead);
-
+        hasTypedStartedRef.current = true;
         setTypedTitle('');
         setTypedLead('');
 
@@ -75,33 +76,38 @@ const Home = () => {
         };
 
         const typeLead = () => {
-            if (!heroLead) return;
+            if (!heroLeadText) return;
             leadIndex += 1;
-            setTypedLead(heroLead.slice(0, leadIndex));
-            if (leadIndex < heroLead.length) schedule(typeLead, 14);
+            setTypedLead(heroLeadText.slice(0, leadIndex));
+            if (leadIndex < heroLeadText.length) {
+                schedule(typeLead, 14);
+            }
         };
 
         const typeTitle = () => {
-            if (!heroTitle) {
+            if (!heroTitleText) {
                 schedule(typeLead, 120);
                 return;
             }
+
             titleIndex += 1;
-            setTypedTitle(heroTitle.slice(0, titleIndex));
-            if (titleIndex < heroTitle.length) {
+            setTypedTitle(heroTitleText.slice(0, titleIndex));
+
+            if (titleIndex < heroTitleText.length) {
                 schedule(typeTitle, 60);
                 return;
             }
+
             schedule(typeLead, 120);
         };
 
-        schedule(typeTitle, 80);
+        typeTitle();
 
         return () => {
             cancelled = true;
             timers.forEach((id) => clearTimeout(id));
         };
-    }, [loading, managed.title, managed.lead, site.name, defaultHeroTitle, defaultHeroLead]);
+    }, [loading, heroTitleText, heroLeadText]);
 
 
     if (loading) {
