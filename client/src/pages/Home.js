@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle, Clock3, ShieldCheck, BriefcaseBusiness } from 'lucide-react';
 import { servicesService, tendersService } from '../services/api';
@@ -16,6 +16,18 @@ const Home = () => {
     const [services, setServices] = useState([]);
     const [tenders, setTenders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [typedTitle, setTypedTitle] = useState('');
+    const [typedLead, setTypedLead] = useState('');
+    const hasTypedStartedRef = useRef(false);
+    const defaultHeroTitle = 'GeM Services India';
+    const defaultHeroLead = 'Built for serious teams that need predictable support for GeM onboarding, catalogue execution, bid participation, and tender delivery timelines.';
+    const normalizeHeroText = (value, fallback) => {
+        if (typeof value !== 'string') return fallback;
+        const text = value.trim();
+        return text.length ? text : fallback;
+    };
+    const heroTitleText = normalizeHeroText(managed.title, normalizeHeroText(site.name, defaultHeroTitle));
+    const heroLeadText = normalizeHeroText(managed.lead, defaultHeroLead);
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -45,6 +57,60 @@ const Home = () => {
     }, []);
 
 
+
+    useEffect(() => {
+        if (loading || hasTypedStartedRef.current) return;
+
+        hasTypedStartedRef.current = true;
+        setTypedTitle('');
+        setTypedLead('');
+
+        let cancelled = false;
+        const timers = [];
+        let titleIndex = 0;
+        let leadIndex = 0;
+
+        const schedule = (fn, delay) => {
+            const id = setTimeout(() => {
+                if (!cancelled) fn();
+            }, delay);
+            timers.push(id);
+        };
+
+        const typeLead = () => {
+            if (!heroLeadText) return;
+            leadIndex += 1;
+            setTypedLead(heroLeadText.slice(0, leadIndex));
+            if (leadIndex < heroLeadText.length) {
+                schedule(typeLead, 14);
+            }
+        };
+
+        const typeTitle = () => {
+            if (!heroTitleText) {
+                schedule(typeLead, 120);
+                return;
+            }
+
+            titleIndex += 1;
+            setTypedTitle(heroTitleText.slice(0, titleIndex));
+
+            if (titleIndex < heroTitleText.length) {
+                schedule(typeTitle, 60);
+                return;
+            }
+
+            schedule(typeLead, 120);
+        };
+
+        typeTitle();
+
+        return () => {
+            cancelled = true;
+            timers.forEach((id) => clearTimeout(id));
+        };
+    }, [loading, heroTitleText, heroLeadText]);
+
     if (loading) {
         return (
             <div className="loading">
@@ -66,8 +132,8 @@ const Home = () => {
                     <div className="home-hero-layout">
                         <div className="home-hero-copy">
                             <span className="kicker">{managed.kicker}</span>
-                            <h1 className="page__title mt-14">{managed.title || site.name}</h1>
-                            <p className="page__lead home-hero__lead--light">{managed.lead}</p>
+                            <h1 className="page__title mt-14 home-hero__typed-title">{typedTitle}</h1>
+                            <p className="page__lead home-hero__lead--light home-hero__typed-lead">{typedLead}</p>
                             <div className="cta-row">
                                 <Link to="/services" className="btn btn-primary">
                                     Explore Services <ArrowRight size={16} />
