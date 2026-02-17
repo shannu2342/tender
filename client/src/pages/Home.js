@@ -55,26 +55,40 @@ const Home = () => {
         if (!section) return;
 
         let wasVisible = false;
+
+        const onVisibilityChange = (visible) => {
+            if (visible && !wasVisible) {
+                setIsHeroVisible(true);
+                setHeroTypeRun((v) => v + 1);
+            }
+
+            if (!visible && wasVisible) {
+                setIsHeroVisible(false);
+                setHeroEraseRun((v) => v + 1);
+            }
+
+            wasVisible = visible;
+        };
+
+        const checkInitialVisibility = () => {
+            const rect = section.getBoundingClientRect();
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            const visibleHeight = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
+            const ratio = rect.height > 0 ? visibleHeight / rect.height : 0;
+            onVisibilityChange(ratio >= 0.05);
+        };
+
         const observer = new IntersectionObserver(
             ([entry]) => {
-                const visible = entry.isIntersecting && entry.intersectionRatio >= 0.35;
-
-                if (visible && !wasVisible) {
-                    setIsHeroVisible(true);
-                    setHeroTypeRun((v) => v + 1);
-                }
-
-                if (!visible && wasVisible) {
-                    setIsHeroVisible(false);
-                    setHeroEraseRun((v) => v + 1);
-                }
-
-                wasVisible = visible;
+                const visible = entry.isIntersecting && entry.intersectionRatio >= 0.05;
+                onVisibilityChange(visible);
             },
-            { threshold: [0, 0.35, 0.7] }
+            { threshold: [0, 0.05, 0.2, 0.5] }
         );
 
         observer.observe(section);
+        checkInitialVisibility();
+
         return () => observer.disconnect();
     }, []);
 
