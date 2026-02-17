@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle, Clock3, ShieldCheck, BriefcaseBusiness } from 'lucide-react';
 import { servicesService, tendersService } from '../services/api';
@@ -18,8 +18,6 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [typedTitle, setTypedTitle] = useState("");
     const [typedLead, setTypedLead] = useState("");
-    const [isHeroVisible, setIsHeroVisible] = useState(true);
-    const heroSectionRef = useRef(null);
     const defaultHeroTitle = 'GeM Services India';
     const defaultHeroLead = 'Built for serious teams that need predictable support for GeM onboarding, catalogue execution, bid participation, and tender delivery timelines.';
     const normalizeHeroText = (value, fallback) => {
@@ -56,41 +54,18 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        const section = heroSectionRef.current;
-        if (!section) return;
+        if (loading) return;
 
-        const onVisibilityChange = (visible) => {
-            setIsHeroVisible(visible);
-        };
-
-        const checkInitialVisibility = () => {
-            const rect = section.getBoundingClientRect();
-            const vh = window.innerHeight || document.documentElement.clientHeight;
-            const visibleHeight = Math.min(rect.bottom, vh) - Math.max(rect.top, 0);
-            const ratio = rect.height > 0 ? visibleHeight / rect.height : 0;
-            onVisibilityChange(ratio >= 0.02);
-        };
-
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                const visible = entry.isIntersecting && entry.intersectionRatio >= 0.02;
-                onVisibilityChange(visible);
-            },
-            { threshold: [0, 0.02, 0.1, 0.3] }
-        );
-
-        observer.observe(section);
-        checkInitialVisibility();
-
-        return () => observer.disconnect();
-    }, []);
-
-    useEffect(() => {
         const heroTitle = normalizeHeroText(managed.title, normalizeHeroText(site.name, defaultHeroTitle));
         const heroLead = normalizeHeroText(managed.lead, defaultHeroLead);
 
+        setTypedTitle('');
+        setTypedLead('');
+
         let cancelled = false;
         const timers = [];
+        let titleIndex = 0;
+        let leadIndex = 0;
 
         const schedule = (fn, delay) => {
             const id = setTimeout(() => {
@@ -98,42 +73,6 @@ const Home = () => {
             }, delay);
             timers.push(id);
         };
-
-        if (!isHeroVisible) {
-            const eraser = setInterval(() => {
-                let hasChars = false;
-
-                setTypedLead((prev) => {
-                    if (prev.length > 0) {
-                        hasChars = true;
-                        return prev.slice(0, -1);
-                    }
-                    return prev;
-                });
-
-                if (!hasChars) {
-                    setTypedTitle((prev) => {
-                        if (prev.length > 0) {
-                            hasChars = true;
-                            return prev.slice(0, -1);
-                        }
-                        return prev;
-                    });
-                }
-
-                if (!hasChars) {
-                    clearInterval(eraser);
-                }
-            }, 10);
-
-            return () => clearInterval(eraser);
-        }
-
-        setTypedTitle('');
-        setTypedLead('');
-
-        let titleIndex = 0;
-        let leadIndex = 0;
 
         const typeLead = () => {
             if (!heroLead) return;
@@ -162,7 +101,7 @@ const Home = () => {
             cancelled = true;
             timers.forEach((id) => clearTimeout(id));
         };
-    }, [isHeroVisible, managed.title, managed.lead, site.name, defaultHeroTitle, defaultHeroLead]);
+    }, [loading, managed.title, managed.lead, site.name, defaultHeroTitle, defaultHeroLead]);
 
 
     if (loading) {
@@ -180,7 +119,6 @@ const Home = () => {
         <div className="page page--tight-top">
             <div className="container">
                 <section
-                    ref={heroSectionRef}
                     className="hero-panel home-hero-panel"
                     aria-label={site.home.heroImageAlt || 'Home hero section'}
                 >
