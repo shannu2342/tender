@@ -192,18 +192,18 @@ const Home = () => {
 
             <section className="page page--no-top">
                 <div className="container">
-                    <div className="hero-panel">
+                    <div className="hero-panel home-why-panel">
                         <h2 className="section-title">Why Teams Choose Us</h2>
-                        <div className="grid gap-8 md:grid-cols-3 mt-14">
-                            <div>
+                        <div className="grid gap-8 md:grid-cols-3 mt-14 home-why-grid">
+                            <div className="home-why-item">
                                 <span className="chip chip--sky"><ShieldCheck size={14} /> Compliance First</span>
                                 <p className="section-subtitle mt-10">Structured checks reduce submission risks and documentation gaps.</p>
                             </div>
-                            <div>
+                            <div className="home-why-item">
                                 <span className="chip chip--sky"><Clock3 size={14} /> Faster Execution</span>
                                 <p className="section-subtitle mt-10">Defined workflows and ownership keep milestones on schedule.</p>
                             </div>
-                            <div>
+                            <div className="home-why-item">
                                 <span className="chip chip--sky"><BriefcaseBusiness size={14} /> Enterprise Model</span>
                                 <p className="section-subtitle mt-10">Scalable support for multi-team and multi-location operations.</p>
                             </div>
