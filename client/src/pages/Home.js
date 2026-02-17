@@ -22,6 +22,8 @@ const Home = () => {
     const [heroEraseRun, setHeroEraseRun] = useState(0);
     const [isHeroVisible, setIsHeroVisible] = useState(false);
     const heroSectionRef = useRef(null);
+    const defaultHeroTitle = 'GeM Services India';
+    const defaultHeroLead = 'Built for serious teams that need predictable support for GeM onboarding, catalogue execution, bid participation, and tender delivery timelines.';
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -49,6 +51,13 @@ const Home = () => {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (!loading && heroTypeRun === 0) {
+            setIsHeroVisible(true);
+            setHeroTypeRun(1);
+        }
+    }, [loading, heroTypeRun]);
 
     useEffect(() => {
         const section = heroSectionRef.current;
@@ -93,8 +102,8 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        const heroTitle = managed.title || site.name || '';
-        const heroLead = managed.lead || '';
+        const heroTitle = (managed.title || site.name || defaultHeroTitle).trim();
+        const heroLead = (managed.lead || defaultHeroLead).trim();
 
         if (!isHeroVisible || heroTypeRun === 0) return;
 
@@ -147,7 +156,7 @@ const Home = () => {
             cancelled = true;
             timeouts.forEach((id) => clearTimeout(id));
         };
-    }, [heroTypeRun, isHeroVisible, managed.title, managed.lead, site.name]);
+    }, [heroTypeRun, isHeroVisible, managed.title, managed.lead, site.name, defaultHeroTitle, defaultHeroLead]);
 
     useEffect(() => {
         if (heroEraseRun === 0) return;
