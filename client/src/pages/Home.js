@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle, Clock3, ShieldCheck, BriefcaseBusiness } from 'lucide-react';
 import { servicesService, tendersService } from '../services/api';
@@ -18,6 +18,10 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [typedTitle, setTypedTitle] = useState("");
     const [typedLead, setTypedLead] = useState("");
+    const [heroTypeRun, setHeroTypeRun] = useState(0);
+    const [heroEraseRun, setHeroEraseRun] = useState(0);
+    const [isHeroVisible, setIsHeroVisible] = useState(false);
+    const heroSectionRef = useRef(null);
     const showcaseImages = Array.isArray(managed.showcaseImages) && managed.showcaseImages.length
         ? managed.showcaseImages.slice(0, 3)
         : [
@@ -47,13 +51,41 @@ const Home = () => {
     }, []);
 
     useEffect(() => {
-        const heroTitle = managed.title || site.name || "";
-        const heroLead = managed.lead || "";
+        const section = heroSectionRef.current;
+        if (!section) return;
 
-        setTypedTitle("");
-        setTypedLead("");
+        let wasVisible = false;
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                const visible = entry.isIntersecting && entry.intersectionRatio >= 0.35;
 
-        if (!heroTitle && !heroLead) return;
+                if (visible && !wasVisible) {
+                    setIsHeroVisible(true);
+                    setHeroTypeRun((v) => v + 1);
+                }
+
+                if (!visible && wasVisible) {
+                    setIsHeroVisible(false);
+                    setHeroEraseRun((v) => v + 1);
+                }
+
+                wasVisible = visible;
+            },
+            { threshold: [0, 0.35, 0.7] }
+        );
+
+        observer.observe(section);
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        const heroTitle = managed.title || site.name || '';
+        const heroLead = managed.lead || '';
+
+        if (!isHeroVisible || heroTypeRun === 0) return;
+
+        setTypedTitle('');
+        setTypedLead('');
 
         let cancelled = false;
         const timeouts = [];
@@ -67,33 +99,19 @@ const Home = () => {
             timeouts.push(id);
         };
 
-        const resetAndRestart = () => {
-            titleIndex = 0;
-            leadIndex = 0;
-            setTypedTitle("");
-            setTypedLead("");
-            schedule(typeTitle, 260);
-        };
-
         const typeLead = () => {
-            if (!heroLead) {
-                schedule(resetAndRestart, 1200);
-                return;
-            }
+            if (!heroLead || !isHeroVisible) return;
 
             leadIndex += 1;
             setTypedLead(heroLead.slice(0, leadIndex));
 
             if (leadIndex < heroLead.length) {
                 schedule(typeLead, 14);
-                return;
             }
-
-            schedule(resetAndRestart, 1800);
         };
 
         const typeTitle = () => {
-            if (!heroTitle) {
+            if (!heroTitle || !isHeroVisible) {
                 schedule(typeLead, 120);
                 return;
             }
@@ -109,13 +127,47 @@ const Home = () => {
             schedule(typeLead, 120);
         };
 
-        schedule(typeTitle, 120);
+        schedule(typeTitle, 90);
 
         return () => {
             cancelled = true;
             timeouts.forEach((id) => clearTimeout(id));
         };
-    }, [managed.title, managed.lead, site.name]);
+    }, [heroTypeRun, isHeroVisible, managed.title, managed.lead, site.name]);
+
+    useEffect(() => {
+        if (heroEraseRun === 0) return;
+
+        const eraser = setInterval(() => {
+            let done = false;
+
+            setTypedLead((prevLead) => {
+                if (prevLead.length > 0) {
+                    return prevLead.slice(0, -1);
+                }
+
+                done = true;
+                return prevLead;
+            });
+
+            if (done) {
+                setTypedTitle((prevTitle) => {
+                    if (prevTitle.length > 0) {
+                        done = false;
+                        return prevTitle.slice(0, -1);
+                    }
+                    return prevTitle;
+                });
+            }
+
+            if (done) {
+                clearInterval(eraser);
+            }
+        }, 10);
+
+        return () => clearInterval(eraser);
+    }, [heroEraseRun]);
+
 
     if (loading) {
         return (
@@ -132,6 +184,7 @@ const Home = () => {
         <div className="page page--tight-top">
             <div className="container">
                 <section
+                    ref={heroSectionRef}
                     className="hero-panel home-hero-panel"
                     aria-label={site.home.heroImageAlt || 'Home hero section'}
                 >
