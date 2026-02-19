@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MessageCircle, Clock3, ShieldCheck, BriefcaseBusiness } from 'lucide-react';
 import { servicesService, tendersService } from '../services/api';
@@ -18,7 +18,6 @@ const Home = () => {
     const [loading, setLoading] = useState(true);
     const [typedTitle, setTypedTitle] = useState('');
     const [typedLead, setTypedLead] = useState('');
-    const hasTypedStartedRef = useRef(false);
     const defaultHeroTitle = 'GeM Services India';
     const defaultHeroLead = 'Built for serious teams that need predictable support for GeM onboarding, catalogue execution, bid participation, and tender delivery timelines.';
     const normalizeHeroText = (value, fallback) => {
@@ -59,9 +58,8 @@ const Home = () => {
 
 
     useEffect(() => {
-        if (loading || hasTypedStartedRef.current) return;
+        if (loading) return;
 
-        hasTypedStartedRef.current = true;
         setTypedTitle('');
         setTypedLead('');
 
